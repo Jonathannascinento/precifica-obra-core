@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: 'If you use Precifica Obra Core in research or professional tooling, please cite it.'
+title: 'Precifica Obra Core'
+type: software
+authors:
+  - family-names: 'Nunes do Nascimento'
+    given-names: 'Jonathan Carlos'
+repository-code: 'https://github.com/Jonathannascinento/precifica-obra-core'
+license: MIT
+version: 0.1.0
+date-released: 2026-07-15
