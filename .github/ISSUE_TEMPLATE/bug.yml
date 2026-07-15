@@ -1,0 +1,41 @@
+name: Bug report
+description: Report reproducible incorrect behavior or calculation output.
+title: 'bug: '
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include customer data, credentials, or proprietary SINAPI files.
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide synthetic input, expected output, and actual output.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - SINAPI parsing
+        - Composition calculation
+        - Budget calculation
+        - BDI
+        - Packaging or documentation
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Data safety
+      options:
+        - label: The report contains no private, customer, or restricted dataset.
+          required: true

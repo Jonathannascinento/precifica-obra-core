@@ -1,0 +1,24 @@
+name: Feature proposal
+description: Propose a substantive new format, calculation, or integration.
+title: 'feat: '
+labels: [enhancement, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Explain the real workflow or interoperability gap.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include API shape, examples, and compatibility considerations.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Public evidence or synthetic fixture
+      description: Link public specifications or provide a non-sensitive example.
