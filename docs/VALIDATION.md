@@ -26,7 +26,7 @@ Release-candidate results on 2026-07-15:
   coverage;
 - zero known vulnerabilities from `npm audit --audit-level=low`;
 - successful ESM and CommonJS smoke tests, including Node 20 and Node 22;
-- npm package preview limited to ten declared files (44,693 compressed bytes; 180,136 unpacked
+- npm package preview limited to ten declared files (44,736 compressed bytes; 180,188 unpacked
   bytes).
 
 ## Known limitations

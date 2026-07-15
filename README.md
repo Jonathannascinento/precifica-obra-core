@@ -105,7 +105,8 @@ npm run docs
 ```
 
 Meaningful issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and the
-[roadmap](ROADMAP.md) before starting larger changes.
+[roadmap](ROADMAP.md) before starting larger changes. Release notes are in the
+[changelog](CHANGELOG.md).
 
 ## License
 
