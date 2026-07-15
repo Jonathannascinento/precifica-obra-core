@@ -1,0 +1,83 @@
+{
+  "name": "precifica-obra-core",
+  "version": "0.1.0",
+  "description": "Framework-independent TypeScript toolkit for normalizing SINAPI data and calculating reproducible civil-construction budgets.",
+  "license": "MIT",
+  "author": "Jonathan Carlos Nunes do Nascimento",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "README.pt-BR.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --sourcemap --clean",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "docs": "typedoc --out docs/api src/index.ts",
+    "validate": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build",
+    "prepack": "npm run validate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jonathannascinento/precifica-obra-core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jonathannascinento/precifica-obra-core/issues"
+  },
+  "homepage": "https://jonathannascinento.github.io/precifica-obra-core/",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "overrides": {
+    "esbuild": "0.28.1"
+  },
+  "keywords": [
+    "sinapi",
+    "construction",
+    "cost-estimation",
+    "civil-engineering",
+    "bdi",
+    "brazil",
+    "typescript"
+  ],
+  "dependencies": {
+    "csv-parse": "^7.0.1",
+    "decimal.js": "^10.6.0",
+    "fflate": "^0.8.3",
+    "saxen": "^11.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@types/node": "^22.16.5",
+    "@vitest/coverage-v8": "^4.0.0",
+    "eslint": "^9.31.0",
+    "globals": "^16.3.0",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "typedoc": "^0.28.7",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0",
+    "vitest": "^4.0.0"
+  }
+}
