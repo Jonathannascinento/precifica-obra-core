@@ -257,6 +257,17 @@ describe('normalizeSinapiRows', () => {
     ).toThrow('Could not detect required code column')
   })
 
+  it('rejects unknown import categories and duplicate strategies at runtime', () => {
+    const rows = [{ Código: '1', Descrição: 'Item', Unidade: 'UN', Preço: '2,00' }]
+
+    expect(() => normalizeSinapiRows(rows, { ...config, category: 'INVALID' as never })).toThrow(
+      'category must be one of SINAPI_INSUMOS, SINAPI_COMPOSICOES, SINAPI_MO, SINAPI_EQUIPAMENTOS, CUSTOM',
+    )
+    expect(() =>
+      normalizeSinapiRows(rows, { ...config, duplicateStrategy: 'INVALID' as never }),
+    ).toThrow('duplicateStrategy must be one of keep-first, keep-last, error')
+  })
+
   it('maps every supported import category and custom source', () => {
     const rows = [{ Código: 1, Descrição: 'Item', Unidade: 'UN', Preço: 2 }]
     const cases = [
@@ -377,6 +388,12 @@ describe('parseSinapiWorkbook', () => {
     await expect(
       parseSinapiWorkbook(new Uint8Array([1, 2, 3]), { ...config, fileName: 'bad.xls' }),
     ).rejects.toThrow('Legacy .xls files are not supported')
+    await expect(
+      parseSinapiWorkbook(new Uint8Array([0x50, 0x4b, 0x03, 0x04]), {
+        ...config,
+        fileName: 'macro-enabled.xlsm',
+      }),
+    ).rejects.toThrow('Macro-enabled and binary Excel files are not supported')
     await expect(
       parseSinapiWorkbook(new Uint8Array([1, 2, 3]), { ...config, fileName: 'bad.xlsx' }),
     ).rejects.toThrow(WorkbookError)

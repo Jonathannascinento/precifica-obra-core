@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import Decimal from 'decimal.js'
 
 import { applyBdi, calculateBudget, calculateComposition, ValidationError } from '../src/index.js'
 import type { BdiParameters, Composition } from '../src/index.js'
@@ -51,6 +52,20 @@ const composition: Composition = {
 }
 
 describe('calculateComposition', () => {
+  it('does not mutate the shared decimal.js arithmetic context', () => {
+    expect({
+      precision: Decimal.precision,
+      rounding: Decimal.rounding,
+      toExpNeg: Decimal.toExpNeg,
+      toExpPos: Decimal.toExpPos,
+    }).toEqual({
+      precision: 20,
+      rounding: Decimal.ROUND_HALF_UP,
+      toExpNeg: -7,
+      toExpPos: 21,
+    })
+  })
+
   it('calculates category totals and labor charges deterministically', () => {
     const result = calculateComposition(composition)
 
@@ -145,6 +160,35 @@ describe('calculateComposition', () => {
       effectiveUnitPrice: '1.2346',
       total: '1.2346',
     })
+  })
+
+  it('sums the rounded line totals shown to consumers', () => {
+    const result = calculateComposition({
+      code: 'ROUND-SUM',
+      description: 'Rounded line sum',
+      unit: 'UN',
+      items: Array.from({ length: 3 }, (_, index) => ({
+        code: `ITEM-${index + 1}`,
+        description: 'Small line',
+        unit: 'UN',
+        category: 'MATERIAL' as const,
+        coefficient: '1',
+        unitPrice: '0.00005',
+      })),
+    })
+
+    expect(result.items.map((item) => item.total)).toEqual(['0.0001', '0.0001', '0.0001'])
+    expect(result.totalsByCategory.MATERIAL).toBe('0.0003')
+    expect(result.directCost).toBe('0.0003')
+  })
+
+  it('rejects unknown cost categories at runtime', () => {
+    expect(() =>
+      calculateComposition({
+        ...composition,
+        items: [{ ...composition.items[0]!, category: 'INVALID' as never }],
+      }),
+    ).toThrow('items[0].category must be one of MATERIAL, LABOR, EQUIPMENT, OTHER')
   })
 })
 

@@ -89,9 +89,12 @@ See [API.md](docs/API.md) and the generated [TypeDoc site](https://jonathannasci
 ## Scope and guarantees
 
 - Monetary values are rounded half-up to four decimal places at API output boundaries.
+- Composition line totals are calculated from full-precision inputs, rounded once, and then summed;
+  category and direct-cost totals therefore equal the sum of the line totals returned by the API.
 - BDI uses `((1 + AC + S + G + R) × (1 + DF) × (1 + L) / (1 - I)) - 1`.
 - Duplicate SINAPI keys default to `keep-last`; `keep-first` and `error` are available.
-- Invalid rows are skipped with diagnostics; configuration errors throw `ValidationError`.
+- Unknown runtime categories and duplicate strategies throw `ValidationError`. Invalid data rows are
+  skipped with diagnostics; other configuration errors also throw `ValidationError`.
 - The package calculates values but does not certify engineering estimates or legal compliance.
 
 See [VALIDATION.md](docs/VALIDATION.md) for the validation model and known limitations.

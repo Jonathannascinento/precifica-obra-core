@@ -61,6 +61,12 @@ console.log(composition.directCost)
 As saídas monetárias públicas usam strings com quatro casas decimais. Prefira strings também nas
 entradas para preservar integralmente a precisão.
 
+Cada total de linha de uma composição é calculado com a precisão integral das entradas e
+arredondado uma única vez para quatro casas. Os totais por categoria e o custo direto somam esses
+mesmos valores de linha já arredondados, de modo que os valores exibidos sempre fecham entre si.
+Categorias e estratégias de duplicidade desconhecidas em tempo de execução são rejeitadas com
+`ValidationError`.
+
 ## Fórmula de BDI
 
 O cálculo usa:

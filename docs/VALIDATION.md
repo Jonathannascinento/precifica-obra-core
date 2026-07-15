@@ -6,27 +6,30 @@
 - Required SINAPI columns and at least one price column.
 - Numeric SINAPI codes, non-empty descriptions and units, and non-negative prices.
 - Duplicate reference handling with explicit strategies.
+- Runtime rejection of unknown import categories, cost categories, and duplicate strategies.
 - Non-negative coefficients, quantities, prices, indirect costs, and percentages.
 - Labor charges and BDI components constrained to valid percentages.
-- Deterministic decimal arithmetic with half-up output rounding to four places.
+- Deterministic decimal arithmetic with half-up output rounding to four places. Composition lines
+  are rounded once before category and direct-cost aggregation, so returned totals reconcile.
 
 ## Automated scenarios
 
-The 21-test suite covers Brazilian decimal formats, accented column names, desonerado versus não
+The 25-test suite covers Brazilian decimal formats, accented column names, desonerado versus não
 desonerado detection, invalid rows, duplicate strategies, CSV delimiters, XLSX shared strings,
 metadata and sparse rows, worksheet selection, every import category, materials, labor charges,
-equipment, compositions, indirect costs, compound BDI, and invalid domain inputs.
+equipment, compositions, line-total reconciliation, isolated decimal configuration, indirect costs,
+compound BDI, and invalid domain inputs.
 
 CI runs formatting, linting, strict TypeScript checks, tests with coverage thresholds, and dual
 ESM/CommonJS builds on supported Node versions.
 
 Release-candidate results on 2026-07-15:
 
-- 92.66% statement coverage, 80.52% branch coverage, 93.40% function coverage, and 95.91% line
+- 92.88% statement coverage, 81.17% branch coverage, 93.47% function coverage, and 96.05% line
   coverage;
 - zero known vulnerabilities from `npm audit --audit-level=low`;
 - successful ESM and CommonJS smoke tests, including Node 20 and Node 22;
-- npm package preview limited to ten declared files (44,736 compressed bytes; 180,188 unpacked
+- npm package preview limited to ten declared files (47,068 compressed bytes; 187,221 unpacked
   bytes).
 
 ## Known limitations

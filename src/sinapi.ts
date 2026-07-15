@@ -1,7 +1,7 @@
 import { parse as parseCsv } from 'csv-parse/sync'
-import Decimal from 'decimal.js'
+import type { Decimal as DecimalJs } from 'decimal.js'
 
-import { fixed } from './decimal.js'
+import { Decimal, fixed } from './decimal.js'
 import { ValidationError, WorkbookError } from './errors.js'
 import { readXlsxSheet } from './xlsx-reader.js'
 import type {
@@ -46,6 +46,20 @@ const BRAZILIAN_STATES = new Set([
   'SP',
   'SE',
   'TO',
+])
+
+const SINAPI_IMPORT_CATEGORIES = new Set<SinapiImportCategory>([
+  'SINAPI_INSUMOS',
+  'SINAPI_COMPOSICOES',
+  'SINAPI_MO',
+  'SINAPI_EQUIPAMENTOS',
+  'CUSTOM',
+])
+
+const DUPLICATE_STRATEGIES = new Set<NonNullable<SinapiImportConfig['duplicateStrategy']>>([
+  'keep-first',
+  'keep-last',
+  'error',
 ])
 
 function normalizedHeader(value: string): string {
@@ -104,7 +118,7 @@ export function detectSinapiColumns(headers: string[]): SinapiColumnMapping {
   }
 }
 
-export function parseBrazilianDecimal(value: unknown): Decimal | null {
+export function parseBrazilianDecimal(value: unknown): DecimalJs | null {
   if (value === null || value === undefined) return null
   let cleaned = cellToString(value).trim()
   if (!cleaned || cleaned === '-') return null
@@ -143,6 +157,18 @@ function resolveCategory(category: SinapiImportCategory): SinapiCategory {
 }
 
 function validateConfig(config: SinapiImportConfig): { state: string; referenceMonth: string } {
+  if (!SINAPI_IMPORT_CATEGORIES.has(config.category)) {
+    throw new ValidationError(
+      'category must be one of SINAPI_INSUMOS, SINAPI_COMPOSICOES, SINAPI_MO, SINAPI_EQUIPAMENTOS, CUSTOM',
+    )
+  }
+  if (
+    config.duplicateStrategy !== undefined &&
+    !DUPLICATE_STRATEGIES.has(config.duplicateStrategy)
+  ) {
+    throw new ValidationError('duplicateStrategy must be one of keep-first, keep-last, error')
+  }
+
   const state = config.state.trim().toUpperCase()
   if (!BRAZILIAN_STATES.has(state)) {
     throw new ValidationError(`state must be a valid Brazilian UF; received "${config.state}"`)
@@ -333,8 +359,17 @@ export function readSinapiFile(
   options: ReadSinapiFileOptions = {},
 ): ReadSinapiFileResult {
   const bytes = toBytes(input)
-  if (options.fileName?.toLowerCase().endsWith('.xls')) {
+  const lowerFileName = options.fileName?.toLowerCase()
+  if (lowerFileName?.endsWith('.xls')) {
     throw new WorkbookError('Legacy .xls files are not supported; convert the file to .xlsx or CSV')
+  }
+  if (
+    lowerFileName &&
+    ['.xlsm', '.xlsb', '.xlam', '.xla'].some((extension) => lowerFileName.endsWith(extension))
+  ) {
+    throw new WorkbookError(
+      'Macro-enabled and binary Excel files are not supported; convert the file to .xlsx or CSV',
+    )
   }
 
   try {

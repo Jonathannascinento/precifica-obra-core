@@ -17,7 +17,8 @@ row-level diagnostics, detected mapping, worksheet metadata, skipped rows, and d
 ### `normalizeSinapiRows(rows, config)`
 
 Processes records that were extracted by another reader. Required columns are code, description,
-unit, and at least one price. Duplicate keys are formed from UF, month, category, and code.
+unit, and at least one price. Duplicate keys are formed from UF, month, category, and code. Unknown
+import categories and duplicate strategies are rejected instead of falling back silently.
 
 ### `detectSinapiColumns(headers)`
 
@@ -30,7 +31,9 @@ Recognizes common variants such as `Código SINAPI`, `Descrição`, `Unidade`, `
 
 Multiplies each coefficient by its effective unit price. For labor items, the effective price
 includes the sum of declared social-charge percentages. Returns line calculations, totals by
-category, and direct unit cost.
+category, and direct unit cost. Each line is calculated from full-precision inputs and rounded
+half-up once to four decimal places. Category totals and direct cost sum those returned line totals,
+so displayed values reconcile exactly. Unknown cost categories are rejected at runtime.
 
 ### `applyBdi(baseCost, parameters)`
 

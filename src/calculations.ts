@@ -1,6 +1,6 @@
-import Decimal from 'decimal.js'
+import type { Decimal as DecimalJs } from 'decimal.js'
 
-import { fixed, nonNegativeDecimal, percentage, sum } from './decimal.js'
+import { Decimal, fixed, nonNegativeDecimal, percentage, sum } from './decimal.js'
 import { ValidationError } from './errors.js'
 import type {
   BdiParameters,
@@ -22,6 +22,8 @@ const ZERO_TOTALS: Record<CostCategory, string> = {
   OTHER: '0.0000',
 }
 
+const COST_CATEGORIES = new Set<CostCategory>(['MATERIAL', 'LABOR', 'EQUIPMENT', 'OTHER'])
+
 export function calculateComposition(composition: Composition): CompositionResult {
   if (!composition.code.trim()) throw new ValidationError('composition.code is required')
   if (!composition.description.trim()) {
@@ -32,7 +34,7 @@ export function calculateComposition(composition: Composition): CompositionResul
     throw new ValidationError('composition.items must contain at least one item')
   }
 
-  const totals = new Map<CostCategory, Decimal>([
+  const totals = new Map<CostCategory, DecimalJs>([
     ['MATERIAL', new Decimal(0)],
     ['LABOR', new Decimal(0)],
     ['EQUIPMENT', new Decimal(0)],
@@ -45,6 +47,11 @@ export function calculateComposition(composition: Composition): CompositionResul
       throw new ValidationError(`items[${index}].description is required`)
     }
     if (!item.unit.trim()) throw new ValidationError(`items[${index}].unit is required`)
+    if (!COST_CATEGORIES.has(item.category)) {
+      throw new ValidationError(
+        `items[${index}].category must be one of MATERIAL, LABOR, EQUIPMENT, OTHER`,
+      )
+    }
 
     const coefficient = nonNegativeDecimal(item.coefficient, `items[${index}].coefficient`)
     const unitPrice = nonNegativeDecimal(item.unitPrice, `items[${index}].unitPrice`)
@@ -62,7 +69,11 @@ export function calculateComposition(composition: Composition): CompositionResul
 
     const effectiveUnitPrice = unitPrice.times(charges.dividedBy(100).plus(1))
     const total = coefficient.times(effectiveUnitPrice)
-    totals.set(item.category, (totals.get(item.category) ?? new Decimal(0)).plus(total))
+    const roundedTotal = fixed(total)
+    totals.set(
+      item.category,
+      (totals.get(item.category) ?? new Decimal(0)).plus(new Decimal(roundedTotal)),
+    )
 
     return {
       ...item,
@@ -70,7 +81,7 @@ export function calculateComposition(composition: Composition): CompositionResul
       unitPrice: fixed(unitPrice),
       laborChargesPercentage: fixed(charges),
       effectiveUnitPrice: fixed(effectiveUnitPrice),
-      total: fixed(total),
+      total: roundedTotal,
     }
   })
 
@@ -87,7 +98,7 @@ export function calculateComposition(composition: Composition): CompositionResul
   }
 }
 
-export function calculateBdiRate(parameters: BdiParameters): Decimal {
+export function calculateBdiRate(parameters: BdiParameters): DecimalJs {
   const administration = percentage(parameters.administration, 'bdi.administration').dividedBy(100)
   const insurance = percentage(parameters.insurance, 'bdi.insurance').dividedBy(100)
   const guarantees = percentage(parameters.guarantees, 'bdi.guarantees').dividedBy(100)
